@@ -51,9 +51,9 @@ public class basickod {
 		höger.setSpeed(vfart);
 		vänster.setSpeed(hfart);
 		ljuscheck();
-		LCD.drawString("vit: " + svartvit.get(svartvit.size()-1), 0, 2);
-		LCD.drawString("gron: " + svartvit.get(0), 0, 2);
-		LCD.drawString("svart: " + svartvit.get(0), 0, 3);
+		LCD.drawString("vit: " + vit, 0, 2);
+		LCD.drawString("gron: " + grön, 0, 2);
+		LCD.drawString("svart: " + svart, 0, 3);
 		while(Button.ESCAPE.isUp()){
 		//målar ut tills du trycker escape detta måste bort när allt är klart.
 		}
@@ -134,9 +134,9 @@ vänster.backward();
 	Sound.beep();
 	Collections.sort(svartvit);//sorterar alla värden den fått av sensorerna och lägger dem med minst först och högst sist
 	
-		vit=svartvit.get(svartvit.size()*(procent/100)); //lägger procentuellt ett max värde för vita linjer
-		svart=svartvit.get(svartvit.size()-(svartvit.size()*(procent/100))); //lägger procentuellt ett min värde för svarta linjer.
-		grön=svart-vit;
+		vit=svartvit.get(svartvit.size()*(procent/100)); //lägger procentuellt ett min värde för vita linjer
+		svart=svartvit.get(svartvit.size()-(svartvit.size()*(procent/100))); //lägger procentuellt ett max värde för svarta linjer.
+		grön=vit-svart;//allt däremellan är då gröna värden
 				
 	Sound.buzz();
 }
