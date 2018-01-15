@@ -1,0 +1,177 @@
+package gymnasiearbete;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import lejos.hardware.Button;
+import lejos.hardware.Sound;
+import lejos.hardware.lcd.LCD;
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.port.MotorPort;
+import lejos.hardware.port.SensorPort;
+import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.hardware.sensor.EV3TouchSensor;
+import lejos.hardware.sensor.SensorModes;
+import lejos.robotics.SampleProvider;
+import lejos.utility.Delay;
+
+public class basickod {
+	public static EV3LargeRegulatedMotor höger = new EV3LargeRegulatedMotor(MotorPort.A);
+	public static EV3LargeRegulatedMotor vänster = new EV3LargeRegulatedMotor(MotorPort.B);
+	public static EV3LargeRegulatedMotor kran = new EV3LargeRegulatedMotor(MotorPort.C);
+	
+	//SKAPAR SONAR MED SAMPLER
+	public static SensorModes vljussensor = new EV3ColorSensor(SensorPort.S1);
+	public static SensorModes hljussensor = new EV3ColorSensor(SensorPort.S4);
+	public static SensorModes trycksensor = new EV3TouchSensor(SensorPort.S3);
+
+	//Deklarerar ints som ska användas
+	public static int vfart=-400;
+	public static int hfart=-400;
+	public static int kfart=100;
+	public static double ljus;
+	public static double ljus2;
+	public static int tryck;
+	public static int counter=0;
+	public static double temp=0;
+	public static int x;
+	public static ArrayList<Float> svartvit = new ArrayList<>();
+	public static Float svart;
+	public static Float vit;
+	public static Float grön;
+		public static int procent=30; //bestämmer hur lågt ner i listan som vit respektve svart ska vara /procent uppe är vit 
+	
+	public static SampleProvider mtryck = trycksensor.getMode("Touch");
+	public static SampleProvider vljus = vljussensor.getMode("Red");
+	public static SampleProvider hljus = hljussensor.getMode("Red");
+	public static float[] samplatljus = new float[100]; //float att lägga ljusvärden i 
+	public static float[] samplattryck = new float[100]; //float att lägga tryckvärden i 
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		höger.setSpeed(vfart);
+		vänster.setSpeed(hfart);
+		ljuscheck();
+		LCD.drawString("vit: " + svartvit.get(svartvit.size()-1), 0, 2);
+		LCD.drawString("gron: " + svartvit.get(0), 0, 2);
+		LCD.drawString("svart: " + svartvit.get(0), 0, 3);
+		while(Button.ESCAPE.isUp()){
+		//målar ut tills du trycker escape detta måste bort när allt är klart.
+		}
+		while(Button.ESCAPE.isUp()){
+			ljusvärde();
+			Tryckvärde();
+			följalinje();
+		    }
+			
+		
+		höger.stop();
+		vänster.stop();
+	}
+	
+	
+	
+	//gör olika metoder att köra nedanför
+	
+public static void ljuscheck(){
+Sound.beep();
+höger.resetTachoCount();
+Delay.msDelay(1000);
+höger.forward();
+vänster.backward();
+	while(höger.getTachoCount()<=(360*5) && Button.ESCAPE.isUp()){
+		Delay.msDelay(50);
+	vljus.fetchSample(samplatljus, 1);//kollar ljus värden för båda sensorerna och sparar i en array
+	hljus.fetchSample(samplatljus, 2);
+	
+	Float temp = samplatljus[1];
+	Float temp2 = samplatljus[2];
+	
+	
+	svartvit.add(temp);//lägger in värden ai en lista 
+	svartvit.add(temp2);
+	
+	
+			
+		//sorteringen klar med höga värden längst ner(svartvit.length till svartvit.length-10) och låga värden längst upp(0-10) i arrayen
+	
+	}
+	
+	
+	while(höger.getTachoCount()>-(360*5) && Button.ESCAPE.isUp()){	
+		Delay.msDelay(50);
+		vljus.fetchSample(samplatljus, 1);//kollar ljus värden för båda sensorerna och sparar i en array
+		hljus.fetchSample(samplatljus, 2);
+		
+		Float temp = samplatljus[1];
+		Float temp2 = samplatljus[2];
+		
+		
+		svartvit.add(temp);//lägger in värdena i en lista
+		svartvit.add(temp2);
+		
+		vänster.forward();
+		höger.backward();
+	
+	}
+	while(höger.getTachoCount()<=(0) && Button.ESCAPE.isUp()){	
+		Delay.msDelay(50);
+		vljus.fetchSample(samplatljus, 1);//kollar ljus värden för båda sensorerna och sparar i en array
+		hljus.fetchSample(samplatljus, 2);
+		
+		Float temp = samplatljus[1];
+		Float temp2 = samplatljus[2];
+		
+		
+		svartvit.add(temp);//lägger in värdena i en lista
+		svartvit.add(temp2);
+		
+		vänster.backward();
+		höger.forward();
+	
+	}
+	höger.stop(true);
+	vänster.stop(); 
+	Sound.beep();
+	Collections.sort(svartvit);//sorterar alla värden den fått av sensorerna och lägger dem med minst först och högst sist
+	
+		vit=svartvit.get(svartvit.size()*(procent/100)); //lägger procentuellt ett max värde för vita linjer
+		svart=svartvit.get(svartvit.size()-(svartvit.size()*(procent/100))); //lägger procentuellt ett min värde för svarta linjer.
+		grön=svart-vit;
+				
+	Sound.buzz();
+}
+	
+public static void Tryckvärde(){
+	
+	mtryck.fetchSample(samplattryck, 1);
+	tryck=(int) samplattryck[1];
+}
+	
+	
+public static void ljusvärde(){
+	//LÄSER AV sensorn... SPARAR PÅ PLATS 1 och 2 i samplatljus-arrayen.
+	vljus.fetchSample(samplatljus, 1);
+	hljus.fetchSample(samplatljus, 2);
+	ljus=samplatljus[1]*1000;
+	ljus2=samplatljus[2]*1000;
+	
+	
+	return;
+}
+	
+public static void följalinje(){
+	
+	
+}
+
+public static void hinder(){
+	
+	
+}
+
+public static void bollar(){
+	
+	
+}
+
+}
