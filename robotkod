@@ -160,9 +160,36 @@ public static void ljusvärde(){
 }
 	
 public static void följalinje(){
+
+	
+	while(samplatljus[1]<svart && samplatljus[2]<svart){		
+		vljus.fetchSample(samplatljus, 1); //Läser av värden
+		hljus.fetchSample(samplatljus, 2);
+		ljus=samplatljus[1]*1000;
+		ljus2=samplatljus[2]*1000;
+		
+		//Nollställer speed
+		höger.setSpeed(vfart); 
+		vänster.setSpeed(hfart);
+		
+		 //Svänger vänster
+		if(samplatljus[1]<svart || samplatljus[2]>vit){
+			vänster.setSpeed(0);
+		}
+		//Svänger höger
+		if(samplatljus[1]>vit|| samplatljus[2]<svart){
+			höger.setSpeed(0);
+		}
+		höger.forward();
+		vänster.forward();
+	}
+	
+	höger.stop(true);
+	vänster.stop(true);
 	
 	
 }
+
 
 public static void hinder(){
 	
